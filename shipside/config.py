@@ -3,8 +3,16 @@ from __future__ import annotations
 
 import os
 import sys
-import tomllib
 from pathlib import Path
+
+try:
+    import tomllib  # Python 3.11+
+except ModuleNotFoundError:  # Python 3.9 / 3.10
+    # pyproject declares requires-python >=3.9, so the 3.9 floor has to hold.
+    # tomllib is stdlib from 3.11; tomli is the same API and the declared
+    # dependency below. Found by CI on 2026-10-02: a hard `import tomllib`
+    # made every `shipside` command die at import time on 3.9/3.10.
+    import tomli as tomllib
 
 CONFIG_NAMES = ("shipside.toml", ".shipside.toml")
 
