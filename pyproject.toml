@@ -28,7 +28,11 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-dev = ["pytest>=7"]
+# tomli is unconditional in dev (not marker-gated) on purpose: it is only a
+# real dependency below Python 3.11, but tests/test_py39_compat.py must be able
+# to exercise that fallback branch on every interpreter, including 3.12+.
+# Dev extras are never installed by consumers, so this costs end users nothing.
+dev = ["pytest>=7", "tomli>=2.0"]
 
 [project.scripts]
 shipside = "shipside.cli:main"
