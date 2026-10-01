@@ -146,19 +146,32 @@ def build_plan(c, cfg, bid: str, version_string: "str | None", include_items: "l
                 steps[-1].manual_hint = "run: shipside metadata"
         except AscError:
             add("metadata", MANUAL, "could not read version localizations")
-                # screenshots
+    # screenshots - count the REQUIRED 6.7"/6.9" set only. Other sets (65,
+    # iPad) do not satisfy review; an empty required set is a submission
+    # blocker (found live in dogfood: version had 4 shots, all in 65/iPad,
+    # and Apple refused the item with 'This resource cannot be reviewed').
+    if vid:
         try:
-            shot_total = 0
+            locs = c.get_all(f"/v1/appStoreVersions/{vid}/appStoreVersionLocalizations")
+            req_total = 0
+            other_total = 0
             for loc in locs:
-                sets = screenshot_sets(c, loc["id"])
-                for s in sets:
-                    shot_total += len(c.get_all(f"/v1/appScreenshotSets/{s['id']}/appScreenshots"))
-            if shot_total:
-                add("screenshots", OK, f"{shot_total} on the version")
+                for s in screenshot_sets(c, loc["id"]):
+                    n = len(c.get_all(f"/v1/appScreenshotSets/{s['id']}/appScreenshots"))
+                    dt = attrs(s).get("screenshotDisplayType") or ""
+                    if dt in ("APP_IPHONE_67", "APP_IPHONE_69"):
+                        req_total += n
+                    elif n:
+                        other_total += n
+            if req_total:
+                add("screenshots", OK, f"{req_total} in the required 6.7/6.9\" set "
+                    f"({other_total} elsewhere)")
             else:
-                add("screenshots", BLOCKED, "none on any locale - review requires them",
+                add("screenshots", BLOCKED,
+                    f"required 6.7\"/6.9\" set is EMPTY ({other_total} in other sets) - "
+                    "Apple refuses the review item without it",
                     playbook="screenshot-size")
-                steps[-1].manual_hint = "run: shipside screenshots <dir>"
+                steps[-1].manual_hint = "run: shipside screenshots <dir>  (1320x2868 PNGs)"
         except AscError:
             add("screenshots", MANUAL, "could not read screenshot sets")
 

@@ -50,14 +50,47 @@ Apple's age-rating questionnaire — long assumed web-only — accepts a single
 `PATCH /v1/ageRatingDeclarations/{id}` … but it validates **one attribute per
 error**: you patch, it rejects the next missing field, you patch again. Ten or
 more round trips. Shipside iterates automatically with the full enum map and
-succeeds in one command (proven on Adhera and RenewalRadar, 2026-09-30).
-Field defaults are `NONE` with `ageBand 4_PLUS`; override in `shipside.toml`:
+succeeds in one command (proven on Adhera and RenewalRadar, 2026-09-30, and
+re-proven on AprilReady 2026-10-01). Field defaults are `NONE` with `ageBand
+4_PLUS`; override in `shipside.toml`:
 
 ```toml
 [age_rating]
 age_band = "4_PLUS"
 health_or_wellness_topics = "FREQUENT_OR_INTENSE"
 ```
+
+**2026-10 schema drift** (found live during dogfood): Apple now types several
+fields as BOOLEAN (`messagingAndChat`, `gambling`, `parentalControls`,
+`userGeneratedContent`, `lootBox`, `advertising`, `unrestrictedWebAccess`,
+`healthOrWellnessTopics`, `ageAssurance`), requires the new `advertising`
+field, and **removed `ageBand` entirely** — the band is derived from the
+answers. Shipside intersects its payload with the live declaration schema and
+converts types automatically; old scripts hardcoding `ageBand` now get
+`'ageBand' is not an attribute on the resource 'ageRatingDeclarations'`.
+
+## The empty required screenshot set: "This resource cannot be reviewed"
+
+`POST /v1/reviewSubmissionItems` answering
+`STATE_ERROR.ENTITY_STATE_INVALID: This resource cannot be reviewed` means the
+VERSION has an open validation gap — Apple doesn't name it. In dogfood
+(2026-10-01) the cause was an **existing-but-empty `APP_IPHONE_67` set**: the
+version showed 4 screenshots (all in `APP_IPHONE_65` + iPad), which `filter`
+counts as "has screenshots", but review requires the 6.7"/6.9" set to be
+non-empty. `shipside plan` now counts the required set specifically and blocks
+early with this playbook. Other members of this error class: unanswered App
+Privacy questions (see below), missing pricing, missing content rights.
+
+## Privacy nutrition labels gate the first submission
+
+The App Privacy questions are not settable with a standard API key, and an
+unanswered privacy section blocks the first submission with the generic
+"cannot be reviewed" error above. One-time web fix: ASC > app > App Privacy >
+answer (for offline apps: "Data Not Collected"). The launch-day pipeline
+automated it via `fastlane run upload_app_privacy_details_to_app_store` with a
+`[{"data_protections": ["DATA_NOT_COLLECTED"]}]` JSON — which needs the Apple
+ID web session (`fastlane spaceauth`) inside a GUI keychain session; over bare
+SSH the keychain read fails with `security` exit 36.
 
 ## The 640×920 subscription screenshot trap
 
