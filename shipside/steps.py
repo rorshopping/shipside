@@ -131,8 +131,9 @@ def latest_valid_build(c, app_id: str):
 
 
 def latest_builds(c, app_id: str, n: int = 5):
-    builds = c.get_all(f"/v1/apps/{app_id}/builds?limit={n}&sort=-uploadedDate")
-    return builds[:n]
+    # Note: sort=-uploadedDate is only valid on /v1/builds (filter[app]), not
+    # on the /v1/apps/{id}/builds relationship - that combination 400s.
+    return c.get_all(f"/v1/builds?filter[app]={app_id}&limit={n}&sort=-uploadedDate")[:n]
 
 
 def attach_build(c, vid: str, build_id: str):
@@ -252,7 +253,7 @@ ENUM_FIELDS = {
     "gamblingSimulated", "gambling", "contests", "lootBox",
     "messagingAndChat", "parentalControls", "unrestrictedWebAccess",
     "socialMedia", "socialMediaAgeRestricted", "ageAssurance",
-    "healthOrWellnessTopics",
+    "healthOrWellnessTopics", "advertising",
 }
 
 
@@ -267,6 +268,7 @@ def set_age_rating(c, app_id: str, overrides: "dict | None" = None, log=print) -
     per-error validation until it sticks. Returns True on success."""
     aid = age_rating_declaration_id(c, app_id)
     question_attrs = {
+        "advertising": "NONE",
         "alcoholTobaccoOrDrugUseOrReferences": "NONE",
         "contests": "NONE",
         "gambling": "NONE",
@@ -290,7 +292,15 @@ def set_age_rating(c, app_id: str, overrides: "dict | None" = None, log=print) -
     }
     question_attrs.update(overrides or {})
     question_attrs = {k: v for k, v in question_attrs.items() if v}
-    payload_attrs = {"ageBand": "4_PLUS", **question_attrs}
+    payload_attrs = dict(question_attrs)
+    # Schema-drift guard: only send fields the live declaration actually has.
+    # (2026-10: ageBand is GONE - Apple derives the band from the answers now;
+    # several questionnaire fields flipped from enums to BOOLEANs.)
+    try:
+        live = attrs(c.get(f"/v1/ageRatingDeclarations/{aid}").get("data"))
+        payload_attrs = {k: v for k, v in payload_attrs.items() if k in live}
+    except AscError:
+        pass
 
     for attempt in range(10):
         try:
@@ -303,16 +313,25 @@ def set_age_rating(c, app_id: str, overrides: "dict | None" = None, log=print) -
         except AscError as e:
             raw = e.body
             changed = False
+            # Apple names exactly one bad attribute class per error; widen the
+            # payload each round until the PATCH sticks. (2026-10: several
+            # fields - messagingAndChat, gambling, parentalControls,
+            # userGeneratedContent - are BOOLEAN-typed now, others enum.)
             for name in set(re.findall(r"attribute '([A-Za-z]+)'", raw)) | set(
-                re.findall(r"attribute .([A-Za-z]+)\.", raw)
+                re.findall(r'attribute "([A-Za-z]+)"', raw)
             ):
                 if name not in payload_attrs and name in ENUM_FIELDS:
                     payload_attrs[name] = "NONE"
                     changed = True
                     log(f"    adding required field {name}=NONE")
-                m = re.search(r"attribute .(%s)\..*Expected a (\w+)" % name, raw)
+                m = re.search(r"attribute .(%s).{0,3}Expected a (\w+) but got (\w+)" % name, raw)
                 if m and m.group(2) == "BOOLEAN" and isinstance(payload_attrs.get(name), str):
                     payload_attrs[name] = False
+                    changed = True
+                    log(f"    {name}: BOOLEAN expected - setting false")
+                m2 = re.search(r"attribute .(%s).' (?:is not a valid|Expected one of)" % name, raw)
+                if m2 and isinstance(payload_attrs.get(name), bool):
+                    payload_attrs[name] = "FREQUENT" if payload_attrs[name] else "NONE"
                     changed = True
             if not changed:
                 raise
@@ -406,7 +425,10 @@ def review_submission_items(c, rs_id: str):
     return c.get_all(f"/v1/reviewSubmissions/{rs_id}/items")
 
 
-def add_review_submission_item(c, rs_id: str, resource_type: str, resource_id: str):
+def add_review_submission_item(c, rs_id: str, rel_key: str, resource_type: str, resource_id: str):
+    """rel_key is SINGULAR ('appStoreVersion', 'subscription') even though the
+    resource type is plural ('appStoreVersions', 'subscriptions') - the plural
+    key gets 409 ENTITY_ERROR.RELATIONSHIP.UNKNOWN."""
     return c.post(
         "/v1/reviewSubmissionItems",
         {
@@ -414,7 +436,7 @@ def add_review_submission_item(c, rs_id: str, resource_type: str, resource_id: s
                 "type": "reviewSubmissionItems",
                 "relationships": {
                     "reviewSubmission": {"data": {"type": "reviewSubmissions", "id": rs_id}},
-                    resource_type: {"data": {"type": resource_type, "id": resource_id}},
+                    rel_key: {"data": {"type": resource_type, "id": resource_id}},
                 },
             }
         },

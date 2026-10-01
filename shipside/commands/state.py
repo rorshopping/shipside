@@ -39,9 +39,9 @@ def run(c, cfg, args) -> int:
 
     # app info localizations (name / subtitle / privacy policy)
     try:
-        locs = c.get_all(f"/v1/apps/{app['id']}/appInfos?include=appInfoLocalizations")
+        info = c.get(f"/v1/apps/{app['id']}/appInfos?include=appInfoLocalizations")
         rows = []
-        for inc in locs.get("included", []):
+        for inc in (info or {}).get("included", []):
             if inc.get("type") == "appInfoLocalizations":
                 ia = inc.get("attributes") or {}
                 rows.append([

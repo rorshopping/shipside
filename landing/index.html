@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Shipside — ship iOS apps to App Store Connect from the command line</title>
+<meta name="description" content="Shipside drives the App Store Connect API with your own key: metadata, screenshots, age rating, review submission. Five apps shipped to review in one day. 14-day free trial.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛳️</text></svg>">
+<style>
+  :root{
+    --bg:#0b0f14; --panel:#111823; --panel2:#0e141d; --line:#1e2a3a;
+    --text:#e6edf3; --dim:#8b98a9; --accent:#4cc2a9; --accent2:#e8b64c; --red:#e5604c;
+    --code:#0a0e13; --mono:ui-monospace,'Cascadia Code',Consolas,'JetBrains Mono',monospace;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--bg);color:var(--text);font:16px/1.65 -apple-system,'Segoe UI',Inter,Roboto,sans-serif}
+  a{color:var(--accent);text-decoration:none} a:hover{text-decoration:underline}
+  .wrap{max-width:980px;margin:0 auto;padding:0 24px}
+  header{padding:72px 0 40px;border-bottom:1px solid var(--line);
+    background:radial-gradient(1200px 400px at 70% -10%,rgba(76,194,169,.12),transparent)}
+  .kicker{font-family:var(--mono);color:var(--accent);font-size:13px;letter-spacing:.14em;text-transform:uppercase}
+  h1{font-size:clamp(30px,5vw,52px);line-height:1.1;margin:14px 0 18px;font-weight:800;letter-spacing:-.02em}
+  h1 .u{color:var(--accent)}
+  .sub{font-size:19px;color:var(--dim);max-width:720px}
+  .sub b{color:var(--text);font-weight:600}
+  .install{margin:28px 0 10px;background:var(--code);border:1px solid var(--line);border-radius:10px;
+    padding:14px 18px;font-family:var(--mono);font-size:15px;display:flex;gap:12px;align-items:center;max-width:640px}
+  .install .p{color:var(--accent2);user-select:none}
+  .install code{flex:1;overflow-x:auto;white-space:nowrap}
+  .cta{display:inline-block;margin:14px 14px 0 0;padding:11px 22px;border-radius:8px;font-weight:700;font-size:15px}
+  .cta.primary{background:var(--accent);color:#06231d}
+  .cta.ghost{border:1px solid var(--line);color:var(--text)}
+  section{padding:56px 0;border-bottom:1px solid var(--line)}
+  h2{font-size:26px;margin:0 0 8px;letter-spacing:-.01em}
+  .lede{color:var(--dim);margin:0 0 28px;max-width:720px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:14px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px 20px}
+  .card h3{margin:0 0 6px;font-size:16px;font-family:var(--mono);color:var(--accent)}
+  .card p{margin:0;color:var(--dim);font-size:14.5px}
+  table{width:100%;border-collapse:collapse;font-size:14.5px}
+  th{color:var(--dim);text-align:left;font-weight:600;font-size:13px;text-transform:uppercase;letter-spacing:.08em}
+  th,td{padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+  td:first-child{font-family:var(--mono);color:var(--accent);white-space:nowrap}
+  .price-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin-top:26px}
+  .price{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:26px;text-align:center}
+  .price.best{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent) inset;position:relative}
+  .price.best:before{content:"2 months free";position:absolute;top:-11px;left:50%;transform:translateX(-50%);
+    background:var(--accent);color:#06231d;font-size:11px;font-weight:800;padding:2px 12px;border-radius:99px;letter-spacing:.08em}
+  .price .n{font-size:38px;font-weight:800;letter-spacing:-.02em}
+  .price .n small{font-size:15px;color:var(--dim);font-weight:500}
+  .price .d{color:var(--dim);font-size:14px;margin:6px 0 18px}
+  .price a{display:block;padding:12px;border-radius:8px;font-weight:700;background:var(--accent);color:#06231d}
+  .price.best a{background:var(--accent2);color:#231a05}
+  .shipday{margin-top:18px;background:var(--panel2);border:1px dashed var(--accent2);border-radius:10px;
+    padding:12px 18px;font-size:14.5px;color:var(--dim);text-align:center}
+  .shipday code{color:var(--accent2);font-weight:700;letter-spacing:.1em}
+  .story{background:var(--panel2)}
+  blockquote{margin:0;padding:18px 22px;border-left:3px solid var(--accent);background:var(--panel);
+    border-radius:0 10px 10px 0;color:var(--dim);font-size:15.5px}
+  blockquote b{color:var(--text)}
+  .pb{font-family:var(--mono);font-size:13.5px}
+  .pb li{margin:7px 0}
+  .pb .t{color:var(--accent)}
+  footer{padding:40px 0 64px;color:var(--dim);font-size:14px}
+  footer .mono{font-family:var(--mono);font-size:13px}
+  @media(max-width:640px){header{padding:48px 0 32px}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="kicker">Shipside</div>
+    <h1>Ship your iOS app.<br>From the <span class="u">command line</span>.</h1>
+    <p class="sub">Shipside drives the <b>App Store Connect API with your own key</b>: version, listing text,
+    screenshots, age rating, review contact, build attach — and the actual <b>submit for review</b>.
+    When Apple's API says no, Shipside prints the exact recovery steps instead of a stack trace.</p>
+    <div class="install"><span class="p">$</span><code>pipx install git+https://github.com/rorshopping/shipside</code></div>
+    <a class="cta primary" href="#pricing">Start 14-day free trial</a>
+    <a class="cta ghost" href="https://github.com/rorshopping/shipside">Source &amp; docs ↗</a>
+  </div>
+</header>
+
+<section id="why">
+  <div class="wrap">
+    <h2>Born from five apps in one day</h2>
+    <p class="lede">On 2026-09-30 this exact pipeline submitted five apps to App Review end-to-end —
+    and hit every wall App Store Connect has. The walls became playbooks; the playbooks became the CLI.</p>
+    <blockquote>
+      <b>Adhera:</b> the age-rating questionnaire turned out to be scriptable — one attribute per error,
+      ten round trips, automated. <b>REM Sleep Alarm:</b> the build went INVALID mid-flight — only the build
+      dies, the version survives. <b>Quilly:</b> <span style="font-family:var(--mono)">APP_IPHONE_69</span>
+      is not a real enum; the 6.7&#8243; set takes the 1320×2868 files. Every scar is now a
+      <code style="font-family:var(--mono)">shipside</code> playbook. <a href="https://github.com/rorshopping/shipside/blob/main/docs/LAUNCH_STORY.md">Read the full story ↗</a>
+    </blockquote>
+  </div>
+</section>
+
+<section id="commands">
+  <div class="wrap">
+    <h2>One command per mile-marker</h2>
+    <p class="lede">Your build is still your job (Xcode / altool). Shipside takes the last mile — and tells
+    you exactly what it can't do for you.</p>
+    <table>
+      <tr><th>command</th><th>what it does</th><th>writes?</th></tr>
+      <tr><td>shipside init</td><td>Config wizard — bundle id, your ASC API key (referenced by path, never uploaded), review contact → <code>shipside.toml</code></td><td>local file</td></tr>
+      <tr><td>shipside state</td><td>Full ASC status report: versions, builds, screenshots, IAPs, review submissions + the next action</td><td>no</td></tr>
+      <tr><td>shipside plan</td><td>The submission dry-run: every step marked <b>ok / fix / blocked</b>, nothing written</td><td>no</td></tr>
+      <tr><td>shipside metadata</td><td>Push listing text (fastlane-deliver-compatible folders) into the editable version, char limits enforced</td><td>yes</td></tr>
+      <tr><td>shipside screenshots</td><td>Upload 1320×2868 / 1290×2796 PNGs into the 6.7&#8243; set — enum trap handled</td><td>yes</td></tr>
+      <tr><td>shipside submit --yes</td><td>Creates the version (two API routes, 405 playbook), sets age rating + review details, attaches the newest VALID build, submits for review</td><td><b style="color:var(--red)">irreversible</b></td></tr>
+    </table>
+    <div class="grid" style="margin-top:16px">
+      <div class="card"><h3>retry with a spine</h3><p>429/5xx back off respecting <span style="font-family:var(--mono)">Retry-After</span>; a 409 on a retried write means the first one landed — treated as success.</p></div>
+      <div class="card"><h3>your keys, your machine</h3><p>The .p8 is referenced by path and stays put. Shipside's servers never see your ASC credentials — the license check is separate.</p></div>
+      <div class="card"><h3>playbooks, not traces</h3><p>13 known failure modes — the 405 deadlock, INVALID_BINARY, ITMS-91055, the 640×920 trap — each with its exact recovery steps. <a href="https://github.com/rorshopping/shipside/blob/main/docs/PLAYBOOKS.md">Browse them ↗</a></p></div>
+    </div>
+  </div>
+</section>
+
+<section id="pricing">
+  <div class="wrap">
+    <h2>Pricing</h2>
+    <p class="lede">Per developer. 14-day free trial with every feature — no card. Activate with the email you buy with.</p>
+    <div class="price-grid">
+      <div class="price">
+        <div class="n">$19<small> /month</small></div>
+        <div class="d">All commands, all features, one developer. Cancel anytime.</div>
+        <a href="https://buy.stripe.com/5kQfZa5RieSF4vS29M9AA06">Subscribe monthly</a>
+      </div>
+      <div class="price best">
+        <div class="n">$149<small> /year</small></div>
+        <div class="d">Everything in monthly, two months free, one invoice.</div>
+        <a href="https://buy.stripe.com/14A5kw4Ne4e11jGdSu9AA05">Subscribe yearly</a>
+      </div>
+    </div>
+    <div class="shipday">Launch week: code <code>SHIPDAY</code> at checkout takes <b>40% off your first year</b>.</div>
+    <p class="lede" style="margin-top:22px;font-size:14.5px">After checkout, run:<br>
+    <code style="font-family:var(--mono);color:var(--accent)">shipside license activate --email you@used-to-buy.com</code><br>
+    Your license provisions automatically from the payment — usually instantly, always within a minute.</p>
+  </div>
+</section>
+
+<section id="trial" class="story">
+  <div class="wrap">
+    <h2>Try it on a real app in 5 minutes</h2>
+    <div class="install"><span class="p">$</span><code>shipside trial --email you@example.com</code></div>
+    <div class="install"><span class="p">$</span><code>shipside init</code></div>
+    <div class="install"><span class="p">$</span><code>shipside plan</code></div>
+    <p class="lede" style="margin-top:18px"><span style="font-family:var(--mono)">plan</span> is read-only: it shows every
+    blocker between your app and App Review — missing screenshots, empty description, no age rating, no VALID build —
+    and what Shipside will do about each. You lose nothing by looking.</p>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div><a href="https://github.com/rorshopping/shipside">GitHub</a> · <a href="https://github.com/rorshopping/shipside/blob/main/docs/PLAYBOOKS.md">Playbooks</a> · <a href="https://github.com/rorshopping/shipside/blob/main/docs/LAUNCH_STORY.md">Launch story</a> · support: richard@shipside.dev</div>
+    <div class="mono" style="margin-top:12px">MIT licensed. Not affiliated with Apple. App Store Connect is a trademark of Apple Inc.<br>
+    Shipside — the last mile of iOS shipping.</div>
+  </div>
+</footer>
+
+</body>
+</html>

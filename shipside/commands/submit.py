@@ -38,12 +38,20 @@ from ..steps import (
 
 OK, FIX, BLOCKED, MANUAL = "ok", "fix", "blocked", "manual"
 
+# reviewSubmissionItems: relationship key is SINGULAR, resource type PLURAL.
+REL_MAP = {
+    "appStoreVersions": ("appStoreVersion", "appStoreVersions"),
+    "subscriptions": ("subscription", "subscriptions"),
+    "inAppPurchasesV2": ("inAppPurchaseV2", "inAppPurchasesV2"),
+}
+
 
 class Step:
     def __init__(self, title, status, detail="", action=None, playbook=None):
         self.title, self.status, self.detail = title, status, detail
         self.action = action
         self.playbook = playbook
+        self.manual_hint = None
         self.result = ""
 
     def line(self) -> str:
@@ -155,21 +163,26 @@ def build_plan(c, cfg, bid: str, version_string: "str | None", include_items: "l
             add("screenshots", MANUAL, "could not read screenshot sets")
 
     # age rating
+    overrides = {k: v for k, v in cfg.section("age_rating").items() if k != "age_band"}
     try:
         aid = age_rating_declaration_id(c, app["id"])
         decl = c.get(f"/v1/ageRatingDeclarations/{aid}")
         da = attrs(decl)
         answered = sum(1 for k, v in da.items() if v and k not in ("ageBand",))
-        overrides = {k: v for k, v in cfg.section("age_rating").items() if k != "age_band"}
         if da.get("ageBand") and answered >= 10:
             add("age rating", OK, f"band {da.get('ageBand')}, {answered} answers")
         else:
             def fix_age():
                 return set_age_rating(c, app["id"], overrides, log=print)
-            add("age rating", FIX, f"incomplete ({answered} answers) - will set {da.get('ageBand') or '4_PLUS'} + NONE defaults",
+            add("age rating", FIX, f"incomplete ({answered} answers) - will set 4_PLUS + NONE defaults",
                 action=fix_age, playbook="age-rating-stuck")
-    except AscError as e:
-        add("age rating", MANUAL, f"could not read declaration ({e.status})", playbook="age-rating-stuck")
+    except AscError:
+        # Reads intermittently 403 on some apps - attempt the write in execute
+        # instead; set_age_rating surfaces Apple's real error if it persists.
+        def fix_age():
+            return set_age_rating(c, app["id"], overrides, log=print)
+        add("age rating", FIX, "unreadable - will attempt to set during execute",
+            action=fix_age, playbook="age-rating-stuck")
 
     # review details
     if vid:
@@ -216,7 +229,8 @@ def build_plan(c, cfg, bid: str, version_string: "str | None", include_items: "l
     if include_items:
         add("extra review items", FIX, ", ".join(t for t, _ in include_items),
             action=lambda: [
-                add_review_submission_item(c, ctx["rs_id"], t, i) for t, i in include_items
+                add_review_submission_item(c, ctx["rs_id"], *REL_MAP.get(t, (t, t)), i)
+                for t, i in include_items
             ])
 
     if vid:
@@ -269,9 +283,6 @@ def run(c, cfg, args) -> int:
         for s in fixes:
             n += 1
             print(report.step(n, s.title))
-            if s.title == "metadata":
-                print(report.warn("  " + (s.manual_hint or "run shipside metadata first")) if s.manual_hint else "")
-                continue
             if s.manual_hint and not s.action:
                 print(report.info("  " + s.manual_hint))
                 continue
@@ -286,10 +297,12 @@ def run(c, cfg, args) -> int:
             for it in items
         )
         if not have and vid:
-            add_review_submission_item(c, rs_id, "appStoreVersions", vid)
+            add_review_submission_item(c, rs_id, "appStoreVersion", "appStoreVersions", vid)
             print(report.info("  version added to submission"))
         for t, i in include_items:
-            add_review_submission_item(c, rs_id, t, i)
+            rel = {"appStoreVersions": "appStoreVersion", "subscriptions": "subscription",
+                   "inAppPurchasesV2": "inAppPurchaseV2"}.get(t, t)
+            add_review_submission_item(c, rs_id, rel, t, i)
             print(report.info(f"  {t}:{i} added"))
 
         print(report.step(n + 2, "SUBMITTING FOR REVIEW (irreversible)"))
