@@ -72,3 +72,33 @@ has a playbook in `shipside/playbooks.py` and a section in
 screenshots ready, build uploaded and VALID — is a `shipside plan` and one
 `shipside submit --yes`: minutes, most of it Apple's API thinking. First-time
 apps add the one-time web steps (app record, privacy labels).*
+
+## The dogfood: packaging the day into a product (2026-10-01)
+
+Shipside v0.1 was dogfooded the day it was written: the packaged CLI
+(pip-installed wheel, not the loose scripts) run against real, unshipped apps
+in the same portfolio. The run log is committed at
+[dogfood/run-2026-10-01.log](dogfood/run-2026-10-01.log). What the packaged
+CLI did in one sitting:
+
+- `state` on AprilReady: **13 API calls, 8.4s** — full report (listing,
+  versions, builds, screenshots per set, IAP states, next action).
+- `plan` → `submit --yes` staged the complete submission automatically:
+  age rating questionnaire set by iterative API patch (**4 Apple round
+  trips**, discovering 2026's schema drift live), review contact created,
+  content rights set, review submission container opened — all idempotent
+  across retries.
+- The first target (ValidUntil Radar) surfaced a blocker class nobody had
+  named: its `APP_IPHONE_67` set existed but was **empty** — Apple answers
+  `STATE_ERROR.ENTITY_STATE_INVALID: This resource cannot be reviewed` with
+  no specifics. `shipside plan` now counts the required set specifically and
+  blocks early.
+
+Five bugs in the fresh CLI were found and fixed by the run itself (response
+shapes, endpoint sort rules, executor fail-fast). Two new Apple scars entered
+the playbook (age-rating 2026 schema: BOOLEAN fields, no more `ageBand`; the
+empty-required-set refusal). The one step left for a first-time app — App
+Privacy answers — needs Apple's web session (2FA), which no tool may automate;
+the final `submit --yes` flip is staged and idempotent, waiting on that
+2-minute web step. That boundary is the product's honesty, not a gap: the
+API simply does not expose privacy labels.

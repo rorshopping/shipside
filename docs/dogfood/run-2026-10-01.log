@@ -1,0 +1,356 @@
+
+$ shipside doctor
+---
+Shipside doctor
+  config                  C:\Users\Richard\Documents\Cursor_Projects\shipside-dogfood\shipside.toml
+  key file                C:\Users\Richard\.secrets\AuthKey_BP3N265886.p8
+[ok] JWT signed (len 293)
+[ok] API key accepted - team reachable (20 app(s) visible)
+[ok] app record found: ValidUntil Radar (dev.validuntil.app)
+[exit 0, 12s]
+
+$ shipside state
+---
+Traceback (most recent call last):
+  File "<frozen runpy>", line 203, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "C:\Users\Richard\Documents\Cursor_Projects\shipside\.venv-dogfood\Scripts\shipside.exe\__main__.py", line 5, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "C:\Users\Richard\Documents\Cursor_Projects\shipside\.venv-dogfood\Lib\site-packages\shipside\cli.py", line 195, in main
+    return _dispatch(args, cfg)
+  File "C:\Users\Richard\Documents\Cursor_Projects\shipside\.venv-dogfood\Lib\site-packages\shipside\cli.py", line 158, in _dispatch
+    return state_cmd.run(c, cfg, args)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "C:\Users\Richard\Documents\Cursor_Projects\shipside\.venv-dogfood\Lib\site-packages\shipside\commands\state.py", line 44, in run
+    for inc in locs.get("included", []):
+               ^^^^^^^^
+AttributeError: 'list' object has no attribute 'get'
+App Store Connect state - dev.validuntil.app
+
+  app id                  6804450034
+  name                    ValidUntil Radar
+  primary locale          en-US
+  sku                     VALIDUNTIL-001
+  bundle id               dev.validuntil.app
+  content rights          (unset)
+
+[exit 0, 1s]
+
+$ shipside plan
+---
+PLAN (dry run) - dev.validuntil.app
+
+[ok] [ok  ] app record  - ValidUntil Radar (68044500)
+[ok] [ok  ] editable version  - 1.0 (PREPARE_FOR_SUBMISSION)
+[ok] [ok  ] build  - 1787599721 uploaded 2026-08-24
+[!!] [fix ] attach build  - attach 1787599721 to the version
+[ok] [ok  ] metadata  - en-US description 638 chars
+[ok] [ok  ] screenshots  - 4 on the version
+[..] [manl] age rating  - could not read declaration (403)
+[!!] [fix ] review contact  - will create from shipside.toml (ror1994@gmail.com)
+[!!] [fix ] content rights  - will set DOES_NOT_USE_THIRD_PARTY_CONTENT
+[..] [manl] privacy labels  - not settable via API - confirm App Privacy answers in the web UI
+[!!] [fix ] review submission  - will create
+
+[..] plan looks clean: 4 automated step(s), nothing written in plan mode
+[exit 0, 9s]
+
+$ shipside submit --yes
+---
+Traceback (most recent call last):
+  File "<frozen runpy>", line 203, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "C:\Users\Richard\Documents\Cursor_Projects\shipside\.venv-dogfood\Scripts\shipside.exe\__main__.py", line 5, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "C:\Users\Richard\Documents\Cursor_Projects\shipside\.venv-dogfood\Lib\site-packages\shipside\cli.py", line 195, in main
+    return _dispatch(args, cfg)
+  File "C:\Users\Richard\Documents\Cursor_Projects\shipside\.venv-dogfood\Lib\site-packages\shipside\cli.py", line 174, in _dispatch
+    return submit_cmd.run(c, cfg, args)
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "C:\Users\Richard\Documents\Cursor_Projects\shipside\.venv-dogfood\Lib\site-packages\shipside\commands\submit.py", line 280, in run
+    if s.manual_hint and not s.action:
+       ^^^^^^^^^^^^^
+AttributeError: 'Step' object has no attribute 'manual_hint'
+SUBMIT - dev.validuntil.app
+
+[ok] [ok  ] app record  - ValidUntil Radar (68044500)
+[ok] [ok  ] editable version  - 1.0 (PREPARE_FOR_SUBMISSION)
+[ok] [ok  ] build  - 1787599721 uploaded 2026-08-24
+[!!] [fix ] attach build  - attach 1787599721 to the version
+[ok] [ok  ] metadata  - en-US description 638 chars
+[ok] [ok  ] screenshots  - 4 on the version
+[!!] [fix ] age rating  - unreadable - will attempt to set during execute
+[!!] [fix ] review contact  - will create from shipside.toml (ror1994@gmail.com)
+[!!] [fix ] content rights  - will set DOES_NOT_USE_THIRD_PARTY_CONTENT
+[..] [manl] privacy labels  - not settable via API - confirm App Privacy answers in the web UI
+[!!] [fix ] review submission  - will create
+
+Executing...
+[1] attach build
+[exit 0, 8s]
+
+$ shipside submit --yes   # retry after executor fix
+---
+SUBMIT - dev.validuntil.app
+
+[ok] [ok  ] app record  - ValidUntil Radar (68044500)
+[ok] [ok  ] editable version  - 1.0 (PREPARE_FOR_SUBMISSION)
+[ok] [ok  ] build  - 1787599721 uploaded 2026-08-24
+[!!] [fix ] attach build  - attach 1787599721 to the version
+[ok] [ok  ] metadata  - en-US description 638 chars
+[ok] [ok  ] screenshots  - 4 on the version
+[!!] [fix ] age rating  - unreadable - will attempt to set during execute
+[!!] [fix ] review contact  - will create from shipside.toml (ror1994@gmail.com)
+[!!] [fix ] content rights  - will set DOES_NOT_USE_THIRD_PARTY_CONTENT
+[..] [manl] privacy labels  - not settable via API - confirm App Privacy answers in the web UI
+[!!] [fix ] review submission  - will create
+
+Executing...
+[1] attach build
+[2] age rating
+[xx] ASC API PATCH /v1/ageRatingDeclarations/43916f0d-3d47-4038-a70a-78b033fafbaf -> 409
+  [409] ENTITY_ERROR.ATTRIBUTE.TYPE: Unexpected json type provided for attribute 'messagingAndChat'. Expected a BOOLEAN but got STRING
+  [409] ENTITY_ERROR.ATTRIBUTE.TYPE: Unexpected json type provided for attribute 'gambling'. Expected a BOOLEAN but got STRING
+  [409] ENTITY_ERROR.ATTRIBUTE.TYPE: Unexpected json type provided for attribute 'parentalControls'. Expected a BOOLEAN but got STRING
+  [409] ENTITY_ERROR.ATTRIBUTE.TYPE: Unexpected json type provided for attribute 'userGeneratedContent'. Expected a BOOLEAN but got STRING
+[exit 1, 15s]
+
+$ shipside submit --yes   # retry after age-rating boolean discovery
+---
+SUBMIT - dev.validuntil.app
+
+[ok] [ok  ] app record  - ValidUntil Radar (68044500)
+[ok] [ok  ] editable version  - 1.0 (PREPARE_FOR_SUBMISSION)
+[ok] [ok  ] build  - 1787599721 uploaded 2026-08-24
+[ok] [ok  ] metadata  - en-US description 638 chars
+[ok] [ok  ] screenshots  - 4 on the version
+[!!] [fix ] age rating  - unreadable - will attempt to set during execute
+[!!] [fix ] review contact  - will create from shipside.toml (ror1994@gmail.com)
+[!!] [fix ] content rights  - will set DOES_NOT_USE_THIRD_PARTY_CONTENT
+[..] [manl] privacy labels  - not settable via API - confirm App Privacy answers in the web UI
+[!!] [fix ] review submission  - will create
+
+Executing...
+[1] age rating
+[xx] ASC API PATCH /v1/ageRatingDeclarations/43916f0d-3d47-4038-a70a-78b033fafbaf -> 409
+  [409] ENTITY_ERROR.ATTRIBUTE.TYPE: Unexpected json type provided for attribute 'messagingAndChat'. Expected a BOOLEAN but got STRING
+  [409] ENTITY_ERROR.ATTRIBUTE.TYPE: Unexpected json type provided for attribute 'gambling'. Expected a BOOLEAN but got STRING
+  [409] ENTITY_ERROR.ATTRIBUTE.TYPE: Unexpected json type provided for attribute 'parentalControls'. Expected a BOOLEAN but got STRING
+  [409] ENTITY_ERROR.ATTRIBUTE.TYPE: Unexpected json type provided for attribute 'userGeneratedContent'. Expected a BOOLEAN but got STRING
+[exit 1, 10s]
+
+$ shipside submit --yes   # retry 3
+---
+SUBMIT - dev.validuntil.app
+
+[ok] [ok  ] app record  - ValidUntil Radar (68044500)
+[ok] [ok  ] editable version  - 1.0 (PREPARE_FOR_SUBMISSION)
+[ok] [ok  ] build  - 1787599721 uploaded 2026-08-24
+[ok] [ok  ] metadata  - en-US description 638 chars
+[ok] [ok  ] screenshots  - 4 on the version
+[!!] [fix ] age rating  - unreadable - will attempt to set during execute
+[!!] [fix ] review contact  - will create from shipside.toml (ror1994@gmail.com)
+[!!] [fix ] content rights  - will set DOES_NOT_USE_THIRD_PARTY_CONTENT
+[..] [manl] privacy labels  - not settable via API - confirm App Privacy answers in the web UI
+[!!] [fix ] review submission  - will create
+
+Executing...
+[1] age rating
+    messagingAndChat: BOOLEAN expected - setting false
+    userGeneratedContent: BOOLEAN expected - setting false
+    healthOrWellnessTopics: BOOLEAN expected - setting false
+    lootBox: BOOLEAN expected - setting false
+    parentalControls: BOOLEAN expected - setting false
+    unrestrictedWebAccess: BOOLEAN expected - setting false
+    gambling: BOOLEAN expected - setting false
+[xx] ASC API PATCH /v1/ageRatingDeclarations/43916f0d-3d47-4038-a70a-78b033fafbaf -> 409
+  [409] ENTITY_ERROR.ATTRIBUTE.UNKNOWN: 'ageBand' is not an attribute on the resource 'ageRatingDeclarations'
+[exit 1, 12s]
+
+$ shipside submit --yes   # retry 4
+---
+SUBMIT - dev.validuntil.app
+
+[ok] [ok  ] app record  - ValidUntil Radar (68044500)
+[ok] [ok  ] editable version  - 1.0 (PREPARE_FOR_SUBMISSION)
+[ok] [ok  ] build  - 1787599721 uploaded 2026-08-24
+[ok] [ok  ] metadata  - en-US description 638 chars
+[ok] [ok  ] screenshots  - 4 on the version
+[!!] [fix ] age rating  - unreadable - will attempt to set during execute
+[!!] [fix ] review contact  - will create from shipside.toml (ror1994@gmail.com)
+[!!] [fix ] content rights  - will set DOES_NOT_USE_THIRD_PARTY_CONTENT
+[..] [manl] privacy labels  - not settable via API - confirm App Privacy answers in the web UI
+[!!] [fix ] review submission  - will create
+
+Executing...
+[1] age rating
+    userGeneratedContent: BOOLEAN expected - setting false
+    gambling: BOOLEAN expected - setting false
+    lootBox: BOOLEAN expected - setting false
+    parentalControls: BOOLEAN expected - setting false
+    healthOrWellnessTopics: BOOLEAN expected - setting false
+    unrestrictedWebAccess: BOOLEAN expected - setting false
+    messagingAndChat: BOOLEAN expected - setting false
+    adding required field ageAssurance=NONE
+    ageAssurance: BOOLEAN expected - setting false
+[xx] ASC API PATCH /v1/ageRatingDeclarations/43916f0d-3d47-4038-a70a-78b033fafbaf -> 409
+  [409] ENTITY_ERROR.ATTRIBUTE.REQUIRED: You must provide a value for the attribute 'advertising' with this request
+[exit 1, 15s]
+
+$ shipside submit --yes   # retry 5
+---
+[!!] [fix ] age rating  - unreadable - will attempt to set during execute
+[!!] [fix ] review contact  - will create from shipside.toml (ror1994@gmail.com)
+[!!] [fix ] content rights  - will set DOES_NOT_USE_THIRD_PARTY_CONTENT
+[..] [manl] privacy labels  - not settable via API - confirm App Privacy answers in the web UI
+[!!] [fix ] review submission  - will create
+
+Executing...
+[1] age rating
+    unrestrictedWebAccess: BOOLEAN expected - setting false
+    parentalControls: BOOLEAN expected - setting false
+    lootBox: BOOLEAN expected - setting false
+    messagingAndChat: BOOLEAN expected - setting false
+    userGeneratedContent: BOOLEAN expected - setting false
+    gambling: BOOLEAN expected - setting false
+    advertising: BOOLEAN expected - setting false
+    healthOrWellnessTopics: BOOLEAN expected - setting false
+    adding required field ageAssurance=NONE
+    ageAssurance: BOOLEAN expected - setting false
+    age rating set (attempt 4)
+[2] review contact
+[3] content rights
+[4] review submission
+[5] creating/refreshing review submission
+[xx] ASC API POST /v1/reviewSubmissionItems -> 409
+  [409] ENTITY_ERROR.RELATIONSHIP.UNKNOWN: 'appStoreVersions' is not a relationship on the resource 'reviewSubmissionItems'
+[exit 1, 21s]
+
+$ shipside submit --yes   # retry 6 - singular relationship keys
+---
+SUBMIT - dev.validuntil.app
+
+[ok] [ok  ] app record  - ValidUntil Radar (68044500)
+[ok] [ok  ] editable version  - 1.0 (PREPARE_FOR_SUBMISSION)
+[ok] [ok  ] build  - 1787599721 uploaded 2026-08-24
+[ok] [ok  ] metadata  - en-US description 638 chars
+[ok] [ok  ] screenshots  - 4 on the version
+[!!] [fix ] age rating  - unreadable - will attempt to set during execute
+[ok] [ok  ] review contact  - ror1994@gmail.com
+[ok] [ok  ] content rights  - DOES_NOT_USE_THIRD_PARTY_CONTENT
+[..] [manl] privacy labels  - not settable via API - confirm App Privacy answers in the web UI
+[ok] [ok  ] review submission  - open container 8d65d5d3 (READY_FOR_REVIEW)
+
+Executing...
+[1] age rating
+    messagingAndChat: BOOLEAN expected - setting false
+    parentalControls: BOOLEAN expected - setting false
+    healthOrWellnessTopics: BOOLEAN expected - setting false
+    advertising: BOOLEAN expected - setting false
+    lootBox: BOOLEAN expected - setting false
+    gambling: BOOLEAN expected - setting false
+    userGeneratedContent: BOOLEAN expected - setting false
+    unrestrictedWebAccess: BOOLEAN expected - setting false
+    age rating set (attempt 2)
+[2] creating/refreshing review submission
+[xx] ASC API POST /v1/reviewSubmissionItems -> 409
+  [409] STATE_ERROR.ENTITY_STATE_INVALID: This resource cannot be reviewed, please check associated errors to see why.
+[exit 1, 15s]
+
+# PIVOT: ValidUntil blocked by empty required 6.7" set (now a CLI check) - dogfood target: AprilReady
+
+$ shipside state
+---
+App Store Connect state - com.aprilready.app
+
+  app id                  6804449080
+  name                    AprilReady
+  primary locale          en-US
+  sku                     APRILREADY-001
+  bundle id               com.aprilready.app
+  content rights          (unset)
+
+Listing (app info localizations)
+  locale  name        subtitle                  privacy url
+  ------  ----------  ------------------------  -----------
+  en-US   AprilReady  Tax prep, all year round  yes        
+
+Versions
+  version  state                   id      
+  -------  ----------------------  --------
+  1.0      PREPARE_FOR_SUBMISSION  d7422a07
+
+Editable version: 1.0 (PREPARE_FOR_SUBMISSION)
+  build attached          1787502165 (uploaded 2026-08-23)
+  loc en-US               desc 535 chars, keywords: yes, screenshots: APP_IPAD_PRO_3GEN_129:5, APP_IPHONE_65:5, APP_IPHONE_67:5
+
+Recent builds
+  build       processing state  uploaded        
+  ----------  ----------------  ----------------
+  1787502165  VALID             2026-08-23T09:48
+
+In-app purchases
+  product id                   state            type          
+  ---------------------------  ---------------  --------------
+  com.aprilready.pro.lifetime  READY_TO_SUBMIT  NON_CONSUMABLE
+
+----------------------------------------------------------------
+[..] next: shipside plan   (dry-run the submission and see every blocker)
+[..] 13 API calls in 8.4s
+[exit 0, 8s]
+
+$ shipside plan
+---
+PLAN (dry run) - com.aprilready.app
+
+[ok] [ok  ] app record  - AprilReady (68044490)
+[ok] [ok  ] editable version  - 1.0 (PREPARE_FOR_SUBMISSION)
+[ok] [ok  ] build  - 1787502165 uploaded 2026-08-23
+[ok] [ok  ] metadata  - en-US description 535 chars
+[ok] [ok  ] screenshots  - 5 in the required 6.7/6.9" set (10 elsewhere)
+[!!] [fix ] age rating  - unreadable - will attempt to set during execute
+[!!] [fix ] review contact  - will create from shipside.toml (ror1994@gmail.com)
+[!!] [fix ] content rights  - will set DOES_NOT_USE_THIRD_PARTY_CONTENT
+[..] [manl] privacy labels  - not settable via API - confirm App Privacy answers in the web UI
+[!!] [fix ] review submission  - will create
+
+[..] plan looks clean: 4 automated step(s), nothing written in plan mode
+[exit 0, 9s]
+
+$ shipside submit --yes
+---
+SUBMIT - com.aprilready.app
+
+[ok] [ok  ] app record  - AprilReady (68044490)
+[ok] [ok  ] editable version  - 1.0 (PREPARE_FOR_SUBMISSION)
+[ok] [ok  ] build  - 1787502165 uploaded 2026-08-23
+[ok] [ok  ] metadata  - en-US description 535 chars
+[ok] [ok  ] screenshots  - 5 in the required 6.7/6.9" set (10 elsewhere)
+[!!] [fix ] age rating  - unreadable - will attempt to set during execute
+[!!] [fix ] review contact  - will create from shipside.toml (ror1994@gmail.com)
+[!!] [fix ] content rights  - will set DOES_NOT_USE_THIRD_PARTY_CONTENT
+[..] [manl] privacy labels  - not settable via API - confirm App Privacy answers in the web UI
+[!!] [fix ] review submission  - will create
+
+Executing...
+[1] age rating
+    gambling: BOOLEAN expected - setting false
+    advertising: BOOLEAN expected - setting false
+    unrestrictedWebAccess: BOOLEAN expected - setting false
+    userGeneratedContent: BOOLEAN expected - setting false
+    messagingAndChat: BOOLEAN expected - setting false
+    lootBox: BOOLEAN expected - setting false
+    healthOrWellnessTopics: BOOLEAN expected - setting false
+    parentalControls: BOOLEAN expected - setting false
+    adding required field ageAssurance=NONE
+    ageAssurance: BOOLEAN expected - setting false
+    age rating set (attempt 4)
+[2] review contact
+[3] content rights
+[4] review submission
+[5] creating/refreshing review submission
+[xx] ASC API POST /v1/reviewSubmissionItems -> 409
+  [409] STATE_ERROR.ENTITY_STATE_INVALID: This resource cannot be reviewed, please check associated errors to see why.
+[exit 1, 21s]

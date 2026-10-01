@@ -1,0 +1,69 @@
+$ shipside trial --email you@example.com
+[ok] Trial active until 2026-10-15 16:04 UTC - every feature, no card.
+
+$ shipside doctor
+Shipside doctor
+  config                  C:\Users\Richard\Documents\Cursor_Projects\shipside-dogfood\shipside.toml
+  key file                C:\Users\Richard\.secrets\AuthKey_BP3N265886.p8
+[ok] JWT signed (len 293)
+[ok] API key accepted - team reachable (20 app(s) visible)
+[ok] app record found: AprilReady (com.aprilready.app)
+
+$ shipside state
+App Store Connect state - com.aprilready.app
+
+  app id                  6804449080
+  name                    AprilReady
+  primary locale          en-US
+  sku                     APRILREADY-001
+  bundle id               com.aprilready.app
+  content rights          DOES_NOT_USE_THIRD_PARTY_CONTENT
+
+Listing (app info localizations)
+  locale  name        subtitle                  privacy url
+  ------  ----------  ------------------------  -----------
+  en-US   AprilReady  Tax prep, all year round  yes        
+
+Versions
+  version  state                   id      
+  -------  ----------------------  --------
+  1.0      PREPARE_FOR_SUBMISSION  d7422a07
+
+Editable version: 1.0 (PREPARE_FOR_SUBMISSION)
+  build attached          1787502165 (uploaded 2026-08-23)
+  loc en-US               desc 535 chars, keywords: yes, screenshots: APP_IPAD_PRO_3GEN_129:5, APP_IPHONE_65:5, APP_IPHONE_67:5
+
+Recent builds
+  build       processing state  uploaded        
+  ----------  ----------------  ----------------
+  1787502165  VALID             2026-08-23T09:48
+
+Review submissions
+  id        state             submitted
+  --------  ----------------  ---------
+  5ed212da  READY_FOR_REVIEW           
+
+In-app purchases
+  product id                   state            type          
+  ---------------------------  ---------------  --------------
+  com.aprilready.pro.lifetime  READY_TO_SUBMIT  NON_CONSUMABLE
+
+----------------------------------------------------------------
+[..] next: shipside plan   (dry-run the submission and see every blocker)
+[..] 13 API calls in 8.1s
+
+$ shipside plan
+PLAN (dry run) - com.aprilready.app
+
+[ok] [ok  ] app record  - AprilReady (68044490)
+[ok] [ok  ] editable version  - 1.0 (PREPARE_FOR_SUBMISSION)
+[ok] [ok  ] build  - 1787502165 uploaded 2026-08-23
+[ok] [ok  ] metadata  - en-US description 535 chars
+[ok] [ok  ] screenshots  - 5 in the required 6.7/6.9" set (10 elsewhere)
+[!!] [fix ] age rating  - unreadable - will attempt to set during execute
+[ok] [ok  ] review contact  - ror1994@gmail.com
+[ok] [ok  ] content rights  - DOES_NOT_USE_THIRD_PARTY_CONTENT
+[..] [manl] privacy labels  - not settable via API - confirm App Privacy answers in the web UI
+[ok] [ok  ] review submission  - open container 5ed212da (READY_FOR_REVIEW)
+
+[..] plan looks clean: 1 automated step(s), nothing written in plan mode
