@@ -5,7 +5,33 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Shipside — ship iOS apps to App Store Connect from the command line</title>
 <meta name="description" content="Shipside drives the App Store Connect API with your own key: metadata, screenshots, age rating, review submission. Five apps shipped to review in one day. 14-day free trial.">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛳️</text></svg>">
+<link rel="canonical" href="https://shipside-app.vercel.app/">
+
+<!-- OpenGraph / Twitter. Added 2026-10-02: these tags were entirely absent, so every
+     share of this URL (the 5-post X thread, Show HN, two Reddit posts) rendered as a
+     bare link with no preview card. Regenerate the images with:
+       python landing/make_social_card.py -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Shipside">
+<meta property="og:url" content="https://shipside-app.vercel.app/">
+<meta property="og:title" content="Ship your iOS app. From the command line.">
+<meta property="og:description" content="Metadata, screenshots, age rating, submit for review — driven by the App Store Connect API with your own key. Five apps to App Review in one day. 14-day free trial, then $19/mo.">
+<meta property="og:image" content="https://shipside-app.vercel.app/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Shipside — Ship your iOS app from the command line">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@RichardBcker1">
+<meta name="twitter:creator" content="@RichardBcker1">
+<meta name="twitter:title" content="Ship your iOS app. From the command line.">
+<meta name="twitter:description" content="Metadata, screenshots, age rating, submit for review — driven by the App Store Connect API with your own key. Five apps to App Review in one day.">
+<meta name="twitter:image" content="https://shipside-app.vercel.app/twitter.png">
+<meta name="twitter:image:alt" content="Shipside — Ship your iOS app from the command line">
+
+<meta name="theme-color" content="#0b0f14">
+<!-- Favicon as a real file: the previous data: URI embedded an emoji glyph,
+     which rendered as tofu in every card/browser renderer tried. -->
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <style>
   :root{
     --bg:#0b0f14; --panel:#111823; --panel2:#0e141d; --line:#1e2a3a;
@@ -171,6 +197,12 @@
     Shipside — the last mile of iOS shipping.</div>
   </div>
 </footer>
+
+<!-- Vercel Web Analytics: cookieless, no cross-site tracking, free tier.
+     Inert until Web Analytics is switched on for the shipside-app project
+     (Vercel dashboard -> shipside-app -> Analytics -> Enable). Until then
+     this request 404s silently and costs nothing. -->
+<script defer src="/_vercel/insights/script.js"></script>
 
 </body>
 </html>

@@ -1,0 +1,58 @@
+name: test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # 3.9 is the floor declared in pyproject.toml - keep it honest
+        python-version: ["3.9", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+      - name: Test
+        run: pytest tests -q
+
+  landing:
+    # The share metadata (og:/twitter:) was missing for the product's whole
+    # life and nothing caught it. This job is the guard rail.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install
+        run: pip install pillow
+      - name: Verify landing share metadata
+        run: python landing/verify_meta.py
+
+  package:
+    # A broken wheel is a broken product for everyone who pip-installs it.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Build wheel and sdist
+        run: |
+          python -m pip install --upgrade pip build
+          python -m build
+      - name: Install the built wheel and check the CLI starts
+        run: |
+          python -m venv /tmp/shipside-check
+          /tmp/shipside-check/bin/pip install dist/shipside-*.whl
+          /tmp/shipside-check/bin/shipside --version
