@@ -11,3 +11,5 @@ build/
 *.mobileprovision
 shipside.toml
 .vercel
+# playwright-cli scratch (snapshots, console logs) - never commit
+.playwright-cli/
