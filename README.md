@@ -45,7 +45,7 @@ In one day — 2026-09-30 — this pipeline shipped **five apps** to App Review 
 
 ## License
 
-14-day free trial with every feature, no card. Then **$19/month** or **$149/year** per developer — launch code `SHIPDAY` takes 40% off your first year. Activate with the email you bought with:
+14-day free trial with every feature, no card. Then a **one-time purchase: $149** — perpetual license, one developer, up to 3 machines, all v0.x updates. No subscription. Launch code `SHIPDAY` takes 40% off (that's $89.40 once). Activate with the email you bought with:
 
 ```
 shipside trial --email you@example.com
@@ -53,6 +53,21 @@ shipside license activate --email you@example.com
 ```
 
 The license check is online with a 14-day offline grace window — airport-friendly.
+
+
+## Agent / LLM usage
+
+Shipside is built to be driven by coding agents as much as by humans. Every
+command except `init` is fully non-interactive:
+
+- Config comes from `shipside.toml` (or the `ASC_KEY_ID` / `ASC_ISSUER_ID` /
+  `ASC_KEY_PATH` / `SHIPSIDE_BUNDLE_ID` environment variables — no file needed).
+- `--bundle-id` overrides the configured app per invocation.
+- Exit codes: `0` success, `1` blocked or failed (the playbook explains why),
+  `2` needs a license or the missing `--yes` confirmation.
+- `plan` and `state` are read-only and license-free — safe to run first.
+- Agents should write `shipside.toml` directly instead of piping answers into
+  the `init` wizard.
 
 ## Requirements
 
