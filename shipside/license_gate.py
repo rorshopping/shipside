@@ -78,6 +78,30 @@ def locally_valid(state: dict) -> bool:
 # -- API calls ----------------------------------------------------------------
 
 def _post(path: str, payload: dict, timeout: int = 20):
+    try:
+        return _post_once(path, payload, timeout)
+    except (urllib.error.URLError, TimeoutError, OSError):
+        # Some machines (notably macOS on IPv6-capable networks without a v6
+        # route - errno 51) resolve the API's AAAA record and fail. Retry with
+        # IPv4-forced resolution before giving up. Found on the Mac fresh-install
+        # test, 2026-10-02.
+        import socket
+
+        orig = socket.getaddrinfo
+
+        def v4_only(*args, **kwargs):
+            return [r for r in orig(*args, **kwargs) if r[0] == socket.AF_INET]
+
+        socket.getaddrinfo = v4_only
+        try:
+            return _post_once(path, payload, timeout)
+        except (urllib.error.URLError, TimeoutError, OSError) as e:
+            return 0, {"error": f"network error: {e}"}
+        finally:
+            socket.getaddrinfo = orig
+
+
+def _post_once(path: str, payload: dict, timeout: int = 20):
     req = urllib.request.Request(
         LICENSE_API_BASE.rstrip("/") + "/" + path,
         data=json.dumps(payload).encode(),
@@ -92,8 +116,6 @@ def _post(path: str, payload: dict, timeout: int = 20):
             return e.code, json.loads(e.read() or b"{}")
         except Exception:
             return e.code, {}
-    except (urllib.error.URLError, TimeoutError, OSError) as e:
-        return 0, {"error": f"network error: {e}"}
 
 
 def _apply(response: dict, trial: bool = False) -> dict:
