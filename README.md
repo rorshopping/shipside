@@ -45,7 +45,7 @@ In one day — 2026-09-30 — this pipeline shipped **five apps** to App Review 
 
 ## License
 
-14-day free trial with every feature, no card. Then a **one-time purchase: $149** — perpetual license, one developer, up to 3 machines, all v0.x updates. No subscription. Launch code `SHIPDAY` takes 40% off (that's $89.40 once). Activate with the email you bought with:
+14-day free trial with every feature, no card. Then a **one-time purchase: $79** — perpetual license, one developer, up to 3 machines, all v0.x updates. No subscription. Launch code `SHIPDAY` takes 40% off (that's $47.40 once). Activate with the email you bought with:
 
 ```
 shipside trial --email you@example.com
